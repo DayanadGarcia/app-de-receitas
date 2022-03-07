@@ -6,7 +6,14 @@ export default class Foods extends Component {
   render() {
     const { history } = this.props;
     return (
-      <div><Header history={ history } name="Foods" hideSearch={ false } /></div>
+      <div>
+        <Header
+          history={ history }
+          name="Foods"
+          hideSearch={ false }
+          drinkPage={ false }
+        />
+      </div>
     );
   }
 }
