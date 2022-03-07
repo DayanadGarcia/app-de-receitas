@@ -6,7 +6,7 @@ export default class DoneRecipes extends Component {
   render() {
     const { history } = this.props;
     return (
-      <div><Header history={ history } name="Done Recipes" /></div>
+      <div><Header history={ history } name="Done Recipes" hideSearch /></div>
     );
   }
 }

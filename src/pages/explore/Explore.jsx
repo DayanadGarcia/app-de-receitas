@@ -6,7 +6,7 @@ export default class Explore extends Component {
   render() {
     const { history } = this.props;
     return (
-      <div><Header history={ history } name="Explore" /></div>
+      <div><Header history={ history } name="Explore" hideSearch /></div>
     );
   }
 }

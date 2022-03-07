@@ -6,7 +6,7 @@ export default class ExploreFoods extends Component {
   render() {
     const { history } = this.props;
     return (
-      <div><Header history={ history } name="Explore Foods" /></div>
+      <div><Header history={ history } name="Explore Foods" hideSearch /></div>
     );
   }
 }
