@@ -6,7 +6,7 @@ export default class Profile extends Component {
   render() {
     const { history } = this.props;
     return (
-      <div><Header history={ history } name="Profile" /></div>
+      <div><Header history={ history } name="Profile" hideSearch /></div>
     );
   }
 }

@@ -12,22 +12,26 @@ import ExploreFoodsIngredients from './pages/explore/ExploreFoodsIngredients';
 import ExploreFoodsNationalities from './pages/explore/ExploreFoodsNationalities';
 import DoneRecipes from './pages/DoneRecipes';
 import FavoriteRecipes from './pages/FavoriteRecipes';
+import FoodRecipe from './pages/recipes/FoodRecipe';
+import DrinkRecipe from './pages/recipes/DrinkRecipe';
+import ProgFoodRecipe from './pages/recipes/ProgFoodRecipe';
+import ProgDrinkRecipe from './pages/recipes/ProgDrinkRecipe';
 
 function App() {
   return (
     <BrowserRouter>
       <Switch>
         <Route exact path="/" component={ Login } />
-        <Route path="/foods" component={ Foods } />
-        <Route path="/profile" component={ Profile } />
-        <Route path="/drinks" component={ Drinks } />
-        <Route path="/foods/:id-da-receita" component={ Foods } />
-        <Route path="/drinks/:id-da-receita" component={ Drinks } />
-        <Route path="/foods/:id-da-receita/in-progress" component={ Foods } />
-        <Route path="/drinks/:id-da-receita/in-progress" component={ Drinks } />
-        <Route path="/explore" component={ Explore } />
-        <Route path="/explore/foods" component={ ExploreFoods } />
-        <Route path="/explore/drinks" component={ ExploreDrinks } />
+        <Route exact path="/foods" component={ Foods } />
+        <Route exact path="/profile" component={ Profile } />
+        <Route exact path="/drinks" component={ Drinks } />
+        <Route path="/foods/:id-da-receita" component={ FoodRecipe } />
+        <Route path="/drinks/:id-da-receita" component={ DrinkRecipe } />
+        <Route path="/foods/:id-da-receita/in-progress" component={ ProgFoodRecipe } />
+        <Route path="/drinks/:id-da-receita/in-progress" component={ ProgDrinkRecipe } />
+        <Route exact path="/explore" component={ Explore } />
+        <Route exact path="/explore/foods" component={ ExploreFoods } />
+        <Route exact path="/explore/drinks" component={ ExploreDrinks } />
         <Route path="/explore/foods/ingredients" component={ ExploreFoodsIngredients } />
         <Route
           path="/explore/drinks/ingredients"

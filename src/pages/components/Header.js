@@ -31,22 +31,31 @@ export default class Header extends Component {
 
   render() {
     const { searchBar, showBar } = this.state;
-    const { name } = this.props;
+    const { name, hideSearch } = this.props;
     return (
       <header>
         <button
           data-testid="profile-top-btn"
           type="button"
           onClick={ this.sendToProfile }
+          src="../images/profileIcon.svg"
         >
           <img src="../images/searchIcon.svg" alt="profileIcon" />
         </button>
         <h1 data-testid="page-title">{name}</h1>
-        <button onClick={ this.handleClick } data-testid="search-top-btn" type="button">
-          <img src="../images/searchIcon.svg" alt="searchIcon" />
-        </button>
+        {!hideSearch && (
+          <button
+            onClick={ this.handleClick }
+            data-testid="search-top-btn"
+            type="button"
+            src="../images/searchIcon.svg"
+          >
+            <img src="../images/searchIcon.svg" alt="searchIcon" />
+          </button>
+        )}
         {showBar ? (
           <input
+            data-testid="search-input"
             type="text"
             name="searchBar"
             value={ searchBar }
