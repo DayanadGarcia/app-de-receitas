@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ingredientFoodAPI, ingredientCocktailAPI } from '../../services/IngredientAPI';
 import { nameFoodAPI, nameCocktailAPI } from '../../services/nameAPI';
 import { firstLetterFoodAPI,
   firstLetterCocktailAPI } from '../../services/firstLetterAPI';
+import profileIcon from '../../images/profileIcon.svg';
+import searchIcon from '../../images/searchIcon.svg';
+import { responseAPI } from '../../store/actions';
 
-export default class Header extends Component {
+class Header extends Component {
   constructor(props) {
     super(props);
 
@@ -34,47 +38,57 @@ export default class Header extends Component {
     history.push('/profile');
   }
 
-  searchRecipe = () => {
+  searchRecipe = async () => {
     const { drinkPage } = this.props;
+
     if (drinkPage) {
-      this.cocktailsAPI();
+      await this.cocktailsAPI();
     } else {
-      this.foodsAPI();
+      await this.foodsAPI();
     }
   }
 
   foodsAPI = async () => {
     const { searchBar, searchRadio } = this.state;
+    const { saveRecipes } = this.props;
+    let response = [];
+
     if (searchRadio === 'ingredient') {
-      const response = await ingredientFoodAPI(searchBar);
-      console.log(response);
+      response = await ingredientFoodAPI(searchBar);
+      saveRecipes(response);
     } else if (searchRadio === 'name') {
-      const response = await nameFoodAPI(searchBar);
-      console.log(response);
+      response = await nameFoodAPI(searchBar);
+      saveRecipes(response);
     } else if (searchRadio === 'first-letter') {
       if (searchBar.length > 1) {
         global.alert('Your search must have only 1 (one) character');
       } else {
-        const response = await firstLetterFoodAPI(searchBar);
-        console.log(response);
+        response = await firstLetterFoodAPI(searchBar);
+        saveRecipes(response);
       }
+    }
+
+    if (!response) {
+      global.alert('Sorry, we haven\'t found any recipes for these filters.');
     }
   }
 
   cocktailsAPI = async () => {
     const { searchBar, searchRadio } = this.state;
+    const { saveRecipes } = this.props;
+
     if (searchRadio === 'ingredient') {
       const response = await ingredientCocktailAPI(searchBar);
-      console.log(response);
+      saveRecipes(response);
     } else if (searchRadio === 'name') {
       const response = await nameCocktailAPI(searchBar);
-      console.log(response);
+      saveRecipes(response);
     } else if (searchRadio === 'first-letter') {
       if (searchBar.length > 1) {
         global.alert('Your search must have only 1 (one) character');
       } else {
         const response = await firstLetterCocktailAPI(searchBar);
-        console.log(response);
+        saveRecipes(response);
       }
     }
   }
@@ -88,9 +102,9 @@ export default class Header extends Component {
           data-testid="profile-top-btn"
           type="button"
           onClick={ this.sendToProfile }
-          src="../images/profileIcon.svg"
+          src={ profileIcon }
         >
-          <img src="../images/searchIcon.svg" alt="profileIcon" />
+          <img src={ profileIcon } alt="profileIcon" />
         </button>
         <h1 data-testid="page-title">{name}</h1>
         {!hideSearch && (
@@ -98,9 +112,9 @@ export default class Header extends Component {
             onClick={ this.handleClick }
             data-testid="search-top-btn"
             type="button"
-            src="../images/searchIcon.svg"
+            src={ searchIcon }
           >
-            <img src="../images/searchIcon.svg" alt="searchIcon" />
+            <img src={ searchIcon } alt="searchIcon" />
           </button>
         )}
         {showBar ? (
@@ -164,4 +178,11 @@ Header.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
   }),
+  saveRecipes: PropTypes.func,
 }.isRequired;
+
+const mapDispatchToProps = (dispatch) => ({
+  saveRecipes: (state) => dispatch(responseAPI(state)),
+});
+
+export default connect(null, mapDispatchToProps)(Header);
