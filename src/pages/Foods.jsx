@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 export default class Foods extends Component {
   render() {
@@ -13,6 +14,7 @@ export default class Foods extends Component {
           hideSearch={ false }
           drinkPage={ false }
         />
+        <Footer />
       </div>
     );
   }
