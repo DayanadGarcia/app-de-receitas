@@ -17,18 +17,20 @@ class Footer extends React.Component {
   render() {
     return (
       <footer data-testid="footer" className="footer-field">
-        <Link data-testid="drinks-bottom-btn" to="/drinks">
+        <Link to="/drinks" data-testid="drinks-bottom-btn" src={ drinkIcon }>
           <img src={ drinkIcon } alt="drinkIcon" />
         </Link>
         <Link
           data-testid="food-bottom-btn"
           to="/foods"
+          src={ mealIcon }
         >
           <img src={ mealIcon } alt="mealIcon" />
         </Link>
         <Link
           data-testid="explore-bottom-btn"
           to="/explore"
+          src={ exploreIcon }
         >
           <img src={ exploreIcon } alt="exploreIcon" />
         </Link>
