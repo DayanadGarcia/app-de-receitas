@@ -4,10 +4,34 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { foodsAPIOnLoad } from '../services/APIsOnLoad';
+import FoodCard from './components/FoodCard';
+import { categoryFoodAPI, recipesOfFoodsByCategory } from '../services/categorysAPI';
 
 class Foods extends Component {
-  renderRecipes = () => {
-    const { recipes } = this.props;
+  constructor() {
+    super();
+
+    this.state = {
+      recipesOnLoad: [],
+      categorys: [],
+    };
+  }
+
+  async componentDidMount() {
+    await this.requestAPIOnLoad();
+  }
+
+  requestAPIOnLoad = async () => {
+    const allRecipes = await foodsAPIOnLoad();
+    const categorys = await categoryFoodAPI();
+    this.setState({
+      recipesOnLoad: allRecipes,
+      categorys,
+    });
+  }
+
+  renderRecipes = (recipes) => {
     const MAX_LENGTH = 12;
     let allRecipes = [];
 
@@ -26,22 +50,21 @@ class Foods extends Component {
     }
 
     return (
-      allRecipes.map((recipe, index) => (
-        <div data-testid={ `${index}-recipe-card` } key={ recipe.idMeal }>
-          <img
-            src={ recipe.strMealThumb }
-            alt={ recipe.strMeal }
-            data-testid={ `${index}-card-img` }
-          />
-          <p data-testid={ `${index}-card-name` }>{ recipe.strMeal }</p>
-        </div>
-      ))
+      <div>
+        <FoodCard allRecipes={ allRecipes } />
+      </div>
     );
   }
 
+  onClickCategory = async (category) => {
+    const recipesByCategory = await recipesOfFoodsByCategory(category);
+    console.log(recipesByCategory);
+    this.setState({ recipesOnLoad: recipesByCategory });
+  }
+
   render() {
-    const { history, recipes } = this.props;
-    console.log(recipes);
+    const { recipesOnLoad, categorys } = this.state;
+    const { history, recipes, search } = this.props;
     return (
       <div>
         <Header
@@ -50,9 +73,23 @@ class Foods extends Component {
           hideSearch={ false }
           drinkPage={ false }
         />
+
+        {categorys.map(({ strCategory }) => (
+          <button
+            type="button"
+            key={ strCategory }
+            data-testid={ `${strCategory}-category-filter` }
+            onClick={ () => this.onClickCategory(strCategory) }
+          >
+            {strCategory}
+          </button>
+        ))}
+
+        {!search && <FoodCard allRecipes={ recipesOnLoad } />}
+
         { recipes === null
           ? global.alert('Sorry, we haven\'t found any recipes for these filters.')
-          : this.renderRecipes() }
+          : this.renderRecipes(recipes) }
         <Footer />
       </div>
     );
@@ -64,10 +101,12 @@ Foods.propTypes = {
     push: PropTypes.func,
   }),
   recipes: PropTypes.arrayOf,
+  search: PropTypes.bool,
 }.isRequired;
 
 const mapStateToProps = (state) => ({
   recipes: state.getRecipesReducer.recipes,
+  search: state.getRecipesReducer.searchFood,
 });
 
 export default connect(mapStateToProps)(Foods);

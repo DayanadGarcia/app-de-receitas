@@ -7,7 +7,7 @@ import { firstLetterFoodAPI,
   firstLetterCocktailAPI } from '../../services/firstLetterAPI';
 import profileIcon from '../../images/profileIcon.svg';
 import searchIcon from '../../images/searchIcon.svg';
-import { responseAPI } from '../../store/actions';
+import { recipeDrinksOnLoad, recipeFoodsOnLoad, responseAPI } from '../../store/actions';
 
 class Header extends Component {
   constructor(props) {
@@ -39,12 +39,14 @@ class Header extends Component {
   }
 
   searchRecipe = async () => {
-    const { drinkPage } = this.props;
+    const { drinkPage, searchFood, searchDrink } = this.props;
 
     if (drinkPage) {
       await this.cocktailsAPI();
+      searchDrink(true);
     } else {
       await this.foodsAPI();
+      searchFood(true);
     }
   }
 
@@ -99,9 +101,9 @@ class Header extends Component {
     return (
       <header>
         <button
-          data-testid="profile-top-btn"
           type="button"
           onClick={ this.sendToProfile }
+          data-testid="profile-top-btn"
           src={ profileIcon }
         >
           <img src={ profileIcon } alt="profileIcon" />
@@ -110,8 +112,8 @@ class Header extends Component {
         {!hideSearch && (
           <button
             onClick={ this.handleClick }
-            data-testid="search-top-btn"
             type="button"
+            data-testid="search-top-btn"
             src={ searchIcon }
           >
             <img src={ searchIcon } alt="searchIcon" />
@@ -179,10 +181,14 @@ Header.propTypes = {
     push: PropTypes.func,
   }),
   saveRecipes: PropTypes.func,
+  searchDrink: PropTypes.func,
+  searchFood: PropTypes.func,
 }.isRequired;
 
 const mapDispatchToProps = (dispatch) => ({
   saveRecipes: (state) => dispatch(responseAPI(state)),
+  searchFood: (state) => dispatch(recipeFoodsOnLoad(state)),
+  searchDrink: (state) => dispatch(recipeDrinksOnLoad(state)),
 });
 
 export default connect(null, mapDispatchToProps)(Header);
