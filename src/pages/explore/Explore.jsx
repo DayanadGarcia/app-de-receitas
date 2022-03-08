@@ -9,6 +9,20 @@ export default class Explore extends Component {
     return (
       <div>
         <Header history={ history } name="Explore" hideSearch />
+        <button
+          onClick={ () => history.push('/explore/foods') }
+          data-testid="explore-foods"
+          type="button"
+        >
+          Explore Foods
+        </button>
+        <button
+          onClick={ () => history.push('/explore/drinks') }
+          data-testid="explore-drinks"
+          type="button"
+        >
+          Explore Drinks
+        </button>
         <Footer />
       </div>
     );
