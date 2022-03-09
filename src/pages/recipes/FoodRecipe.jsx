@@ -7,6 +7,7 @@ export default class FoodRecipe extends Component {
     super();
     this.state = {
       recipes: [],
+      ingredients: [],
     };
   }
 
@@ -17,15 +18,21 @@ export default class FoodRecipe extends Component {
   getIdAndApi = async () => {
     const { match: { params: { id } } } = this.props;
     const fetchFood = await detailsFoodFetch(id);
-    const foods = fetchFood[0];
-    console.log(foods);
+    const ingredients = [];
+    const MAX_INGREDIENTS = 20;
+    for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
+      if (fetchFood[0][`strIngredient${i}`] !== '') {
+        ingredients.push(fetchFood[0][`strIngredient${i}`]);
+      }
+    }
     this.setState({
-      recipes: foods,
+      recipes: fetchFood[0],
+      ingredients,
     });
   }
 
   render() {
-    const { recipes } = this.state;
+    const { recipes, ingredients } = this.state;
     return (
       <div>
         <img
@@ -37,16 +44,21 @@ export default class FoodRecipe extends Component {
         <button data-testid="share-btn" type="button">Compartilhar</button>
         <button data-testid="favorite-btn" type="button">Favoritar</button>
         <span data-testid="recipe-category">{ recipes.strCategory }</span>
-        <p>
-          { recipes.strIngredient1 }
-        </p>
-        <iframe
+        {ingredients.map((ingredient, index) => (
+          <p
+            key={ ingredient }
+            data-testid={ `${index}-ingredient-name-and-measure` }
+          >
+            {ingredient}
+          </p>
+        ))}
+        {/* <iframe
           title={ recipes.strMeal }
           data-testid="video"
           width="420"
           height="315"
           src={ recipes.strYoutube }
-        />
+        /> */}
         <p data-testid="instructions">{ recipes.strInstructions }</p>
         {/* <div data-testid={ `${index}-recomendation-card` } /> */}
         <button
@@ -61,7 +73,9 @@ export default class FoodRecipe extends Component {
 }
 
 FoodRecipe.propTypes = {
-  match: PropTypes.string.isRequired,
-  params: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-};
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string,
+    }),
+  }),
+}.isRequired;
