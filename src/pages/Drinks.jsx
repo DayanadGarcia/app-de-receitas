@@ -8,6 +8,7 @@ import DrinkCard from './components/DrinkCard';
 import { cocktailsAPIOnLoad } from '../services/APIsOnLoad';
 import { categoryCocktailAPI,
   recipesOfCocktailsByCategory } from '../services/categorysAPI';
+import { recipeDrinksOnLoad } from '../store/actions';
 
 class Drinks extends Component {
   constructor() {
@@ -15,12 +16,14 @@ class Drinks extends Component {
 
     this.state = {
       recipesOnLoad: [],
+      filteredRecipes: [],
       categorys: [],
+      filteredCategory: '',
     };
   }
 
-  componentDidMount() {
-    this.requestAPIOnLoad();
+  async componentDidMount() {
+    await this.requestAPIOnLoad();
   }
 
   requestAPIOnLoad = async () => {
@@ -28,6 +31,7 @@ class Drinks extends Component {
     const categorys = await categoryCocktailAPI();
     this.setState({
       recipesOnLoad: allRecipes,
+      filteredRecipes: allRecipes,
       categorys,
     });
   }
@@ -58,14 +62,28 @@ class Drinks extends Component {
   }
 
   onClickCategory = async (category) => {
+    const { searchDrink } = this.props;
+    const { filteredCategory } = this.state;
     const recipesByCategory = await recipesOfCocktailsByCategory(category);
-    console.log(recipesByCategory);
-    this.setState({ recipesOnLoad: recipesByCategory });
+
+    if (filteredCategory === category) {
+      searchDrink(false);
+      this.setState({
+        filteredCategory: '',
+      });
+    } else {
+      searchDrink(true);
+      this.setState({
+        filteredRecipes: recipesByCategory,
+        filteredCategory: category,
+      });
+    }
   }
 
   render() {
-    const { recipesOnLoad, categorys } = this.state;
-    const { history, recipes, search } = this.props;
+    const { recipesOnLoad, categorys, filteredRecipes } = this.state;
+    const { history, recipes, search, searchDrink } = this.props;
+
     return (
       <div>
         <Header
@@ -74,6 +92,14 @@ class Drinks extends Component {
           hideSearch={ false }
           drinkPage
         />
+
+        <button
+          type="button"
+          data-testid="All-category-filter"
+          onClick={ () => searchDrink(false) }
+        >
+          All
+        </button>
 
         {categorys.map(({ strCategory }) => (
           <button
@@ -86,7 +112,9 @@ class Drinks extends Component {
           </button>
         ))}
 
-        {!search && <DrinkCard allRecipes={ recipesOnLoad } />}
+        {!search
+          ? <DrinkCard allRecipes={ recipesOnLoad } />
+          : <DrinkCard allRecipes={ filteredRecipes } />}
 
         { recipes === null
           ? global.alert('Sorry, we haven\'t found any recipes for these filters.')
@@ -110,4 +138,8 @@ const mapStateToProps = (state) => ({
   search: state.getRecipesReducer.searchDrink,
 });
 
-export default connect(mapStateToProps)(Drinks);
+const mapDispatchToProps = (dispatch) => ({
+  searchDrink: (state) => dispatch(recipeDrinksOnLoad(state)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Drinks);

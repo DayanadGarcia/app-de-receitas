@@ -7,6 +7,7 @@ import Footer from './components/Footer';
 import { foodsAPIOnLoad } from '../services/APIsOnLoad';
 import FoodCard from './components/FoodCard';
 import { categoryFoodAPI, recipesOfFoodsByCategory } from '../services/categorysAPI';
+import { recipeFoodsOnLoad } from '../store/actions';
 
 class Foods extends Component {
   constructor() {
@@ -14,7 +15,9 @@ class Foods extends Component {
 
     this.state = {
       recipesOnLoad: [],
+      filteredRecipes: [],
       categorys: [],
+      filteredCategory: '',
     };
   }
 
@@ -27,6 +30,7 @@ class Foods extends Component {
     const categorys = await categoryFoodAPI();
     this.setState({
       recipesOnLoad: allRecipes,
+      filteredRecipes: allRecipes,
       categorys,
     });
   }
@@ -57,14 +61,28 @@ class Foods extends Component {
   }
 
   onClickCategory = async (category) => {
+    const { searchFood } = this.props;
+    const { filteredCategory } = this.state;
     const recipesByCategory = await recipesOfFoodsByCategory(category);
-    console.log(recipesByCategory);
-    this.setState({ recipesOnLoad: recipesByCategory });
+
+    if (filteredCategory === category) {
+      searchFood(false);
+      this.setState({
+        filteredCategory: '',
+      });
+    } else {
+      searchFood(true);
+      this.setState({
+        filteredRecipes: recipesByCategory,
+        filteredCategory: category,
+      });
+    }
   }
 
   render() {
-    const { recipesOnLoad, categorys } = this.state;
-    const { history, recipes, search } = this.props;
+    const { recipesOnLoad, categorys, filteredRecipes } = this.state;
+    const { history, recipes, search, searchFood } = this.props;
+
     return (
       <div>
         <Header
@@ -73,6 +91,14 @@ class Foods extends Component {
           hideSearch={ false }
           drinkPage={ false }
         />
+
+        <button
+          type="button"
+          data-testid="All-category-filter"
+          onClick={ () => searchFood(false) }
+        >
+          All
+        </button>
 
         {categorys.map(({ strCategory }) => (
           <button
@@ -85,7 +111,9 @@ class Foods extends Component {
           </button>
         ))}
 
-        {!search && <FoodCard allRecipes={ recipesOnLoad } />}
+        {!search
+          ? <FoodCard allRecipes={ recipesOnLoad } />
+          : <FoodCard allRecipes={ filteredRecipes } />}
 
         { recipes === null
           ? global.alert('Sorry, we haven\'t found any recipes for these filters.')
@@ -109,4 +137,8 @@ const mapStateToProps = (state) => ({
   search: state.getRecipesReducer.searchFood,
 });
 
-export default connect(mapStateToProps)(Foods);
+const mapDispatchToProps = (dispatch) => ({
+  searchFood: (state) => dispatch(recipeFoodsOnLoad(state)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Foods);
