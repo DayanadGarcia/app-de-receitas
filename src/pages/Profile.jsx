@@ -27,10 +27,13 @@ export default class Profile extends Component {
   readLocalStorage() {
     const emailLocal = localStorage.getItem('user');
     const emailObj = JSON.parse(emailLocal);
-    const obj = emailObj.email;
-    this.setState({
-      email: obj,
-    });
+
+    if (emailObj !== null) {
+      const obj = emailObj.email;
+      this.setState({
+        email: obj,
+      });
+    }
   }
 
   render() {

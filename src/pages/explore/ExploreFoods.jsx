@@ -50,7 +50,7 @@ export default class ExploreFoods extends Component {
           data-testid="explore-surprise"
           type="button"
         >
-          Suprise me!
+          Surprise me!
         </button>
         <Footer />
       </div>
