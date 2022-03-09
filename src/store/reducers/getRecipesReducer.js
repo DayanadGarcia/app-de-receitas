@@ -1,7 +1,13 @@
-import { RESPONSE_API, RECIPE_FOODS_ON_LOAD, RECIPE_DRINKS_ON_LOAD } from '../actions';
+import {
+  RESPONSE_API,
+  RECIPE_FOODS_ON_LOAD,
+  RECIPE_DRINKS_ON_LOAD,
+  FILTERED_RECIPES,
+} from '../actions';
 
 const INITIAL_STATE = {
   recipes: [],
+  filteredRecipes: [],
   searchFood: false,
   searchDrink: false,
 };
@@ -22,6 +28,11 @@ export default function getRecipesReducer(state = INITIAL_STATE, action) {
     return {
       ...state,
       searchDrink: action.payload,
+    };
+  case FILTERED_RECIPES:
+    return {
+      ...state,
+      filteredRecipes: action.payload,
     };
   default:
     return state;

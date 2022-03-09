@@ -7,7 +7,12 @@ import { firstLetterFoodAPI,
   firstLetterCocktailAPI } from '../../services/firstLetterAPI';
 import profileIcon from '../../images/profileIcon.svg';
 import searchIcon from '../../images/searchIcon.svg';
-import { recipeDrinksOnLoad, recipeFoodsOnLoad, responseAPI } from '../../store/actions';
+import {
+  recipeDrinksOnLoad,
+  recipeFoodsOnLoad,
+  recipesFiltered,
+  responseAPI,
+} from '../../store/actions';
 
 class Header extends Component {
   constructor(props) {
@@ -52,21 +57,21 @@ class Header extends Component {
 
   foodsAPI = async () => {
     const { searchBar, searchRadio } = this.state;
-    const { saveRecipes } = this.props;
+    const { saveRecipesFiltered } = this.props;
     let response = [];
 
     if (searchRadio === 'ingredient') {
       response = await ingredientFoodAPI(searchBar);
-      saveRecipes(response);
+      saveRecipesFiltered(response);
     } else if (searchRadio === 'name') {
       response = await nameFoodAPI(searchBar);
-      saveRecipes(response);
+      saveRecipesFiltered(response);
     } else if (searchRadio === 'first-letter') {
       if (searchBar.length > 1) {
         global.alert('Your search must have only 1 (one) character');
       } else {
         response = await firstLetterFoodAPI(searchBar);
-        saveRecipes(response);
+        saveRecipesFiltered(response);
       }
     }
 
@@ -77,21 +82,26 @@ class Header extends Component {
 
   cocktailsAPI = async () => {
     const { searchBar, searchRadio } = this.state;
-    const { saveRecipes } = this.props;
+    const { saveRecipesFiltered } = this.props;
+    let response = [];
 
     if (searchRadio === 'ingredient') {
-      const response = await ingredientCocktailAPI(searchBar);
-      saveRecipes(response);
+      response = await ingredientCocktailAPI(searchBar);
+      saveRecipesFiltered(response);
     } else if (searchRadio === 'name') {
-      const response = await nameCocktailAPI(searchBar);
-      saveRecipes(response);
+      response = await nameCocktailAPI(searchBar);
+      saveRecipesFiltered(response);
     } else if (searchRadio === 'first-letter') {
       if (searchBar.length > 1) {
         global.alert('Your search must have only 1 (one) character');
       } else {
-        const response = await firstLetterCocktailAPI(searchBar);
-        saveRecipes(response);
+        response = await firstLetterCocktailAPI(searchBar);
+        saveRecipesFiltered(response);
       }
+    }
+
+    if (!response) {
+      global.alert('Sorry, we haven\'t found any recipes for these filters.');
     }
   }
 
@@ -189,6 +199,7 @@ const mapDispatchToProps = (dispatch) => ({
   saveRecipes: (state) => dispatch(responseAPI(state)),
   searchFood: (state) => dispatch(recipeFoodsOnLoad(state)),
   searchDrink: (state) => dispatch(recipeDrinksOnLoad(state)),
+  saveRecipesFiltered: (state) => dispatch(recipesFiltered(state)),
 });
 
 export default connect(null, mapDispatchToProps)(Header);

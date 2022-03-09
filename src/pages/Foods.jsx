@@ -6,8 +6,9 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { foodsAPIOnLoad } from '../services/APIsOnLoad';
 import FoodCard from './components/FoodCard';
-import { categoryFoodAPI, recipesOfFoodsByCategory } from '../services/categorysAPI';
-import { recipeFoodsOnLoad } from '../store/actions';
+import { categoryFoodAPI,
+  recipesOfFoodsByCategory } from '../services/categorysAPI';
+import { recipeFoodsOnLoad, recipesFiltered } from '../store/actions';
 
 class Foods extends Component {
   constructor() {
@@ -15,7 +16,6 @@ class Foods extends Component {
 
     this.state = {
       recipesOnLoad: [],
-      filteredRecipes: [],
       categorys: [],
       filteredCategory: '',
     };
@@ -26,42 +26,30 @@ class Foods extends Component {
   }
 
   requestAPIOnLoad = async () => {
+    const { saveFilteredRecipes } = this.props;
     const allRecipes = await foodsAPIOnLoad();
     const categorys = await categoryFoodAPI();
     this.setState({
       recipesOnLoad: allRecipes,
-      filteredRecipes: allRecipes,
       categorys,
     });
+    saveFilteredRecipes(allRecipes);
   }
 
-  renderRecipes = (recipes) => {
-    const MAX_LENGTH = 12;
-    let allRecipes = [];
+  sendToRecipePage = (recipes) => {
+    const { filteredCategory } = this.state;
 
-    if (recipes.length === 1) {
+    if (recipes.length === 1 && filteredCategory === '') {
       return (
         <div>
           <Redirect to={ `/foods/${recipes[0].idMeal}` } />
         </div>
       );
     }
-
-    if (recipes.length > MAX_LENGTH) {
-      allRecipes = recipes.slice(0, MAX_LENGTH);
-    } else {
-      allRecipes = recipes;
-    }
-
-    return (
-      <div>
-        <FoodCard allRecipes={ allRecipes } />
-      </div>
-    );
   }
 
   onClickCategory = async (category) => {
-    const { searchFood } = this.props;
+    const { searchFood, saveFilteredRecipes } = this.props;
     const { filteredCategory } = this.state;
     const recipesByCategory = await recipesOfFoodsByCategory(category);
 
@@ -73,15 +61,15 @@ class Foods extends Component {
     } else {
       searchFood(true);
       this.setState({
-        filteredRecipes: recipesByCategory,
         filteredCategory: category,
       });
+      saveFilteredRecipes(recipesByCategory);
     }
   }
 
   render() {
-    const { recipesOnLoad, categorys, filteredRecipes } = this.state;
-    const { history, recipes, search, searchFood } = this.props;
+    const { recipesOnLoad, categorys } = this.state;
+    const { history, search, searchFood, filteredRecipes } = this.props;
 
     return (
       <div>
@@ -111,13 +99,12 @@ class Foods extends Component {
           </button>
         ))}
 
-        {!search
-          ? <FoodCard allRecipes={ recipesOnLoad } />
-          : <FoodCard allRecipes={ filteredRecipes } />}
+        {search && filteredRecipes
+          ? <FoodCard allRecipes={ filteredRecipes } />
+          : <FoodCard allRecipes={ recipesOnLoad } />}
 
-        { recipes === null
-          ? global.alert('Sorry, we haven\'t found any recipes for these filters.')
-          : this.renderRecipes(recipes) }
+        { filteredRecipes && this.sendToRecipePage(filteredRecipes) }
+
         <Footer />
       </div>
     );
@@ -130,15 +117,18 @@ Foods.propTypes = {
   }),
   recipes: PropTypes.arrayOf,
   search: PropTypes.bool,
+  filteredRecipes: PropTypes.arrayOf,
 }.isRequired;
 
 const mapStateToProps = (state) => ({
   recipes: state.getRecipesReducer.recipes,
   search: state.getRecipesReducer.searchFood,
+  filteredRecipes: state.getRecipesReducer.filteredRecipes,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   searchFood: (state) => dispatch(recipeFoodsOnLoad(state)),
+  saveFilteredRecipes: (state) => dispatch(recipesFiltered(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Foods);
