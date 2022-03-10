@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { exploreFoodIngredients }
@@ -46,14 +47,17 @@ export default class ExploreFoodsIngredients extends Component {
     return (
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
-        {ingredientsCards.map((card) => (
-          <div key={ card }>
-            <img
-              src={ `https://www.themealdb.com/images/ingredients/${card}-Small.png` }
-              alt={ card }
-            />
-            <h1>{card}</h1>
-          </div>
+        {ingredientsCards.map((card, index) => (
+          <Link data-testid={ `${index}-ingredient-card` } to="/foods/" key={ card }>
+            <div>
+              <img
+                data-testid={ `${index}-card-img` }
+                src={ `https://www.themealdb.com/images/ingredients/${card}-Small.png` }
+                alt={ card }
+              />
+              <h1 data-testid={ `${index}-card-name` }>{card}</h1>
+            </div>
+          </Link>
         ))}
         <Footer />
       </div>

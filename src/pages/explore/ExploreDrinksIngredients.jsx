@@ -47,14 +47,19 @@ export default class ExploreDrinksIngredients extends Component {
     return (
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
-        {ingredientsCards.map((card) => (
-          <Link to="/drinks" key={ card }>
+        {ingredientsCards.map((card, index) => (
+          <Link
+            data-testid={ `${index}-ingredient-card` }
+            to="/drinks"
+            key={ card }
+          >
             <div>
               <img
+                data-testid={ `${index}-card-img` }
                 src={ `https://www.thecocktaildb.com/images/ingredients/${card}.png` }
                 alt={ card }
               />
-              <h1>{card}</h1>
+              <h1 data-testid={ `${index}-card-name` }>{card}</h1>
             </div>
           </Link>
         ))}
