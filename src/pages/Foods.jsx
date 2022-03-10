@@ -23,6 +23,10 @@ class Foods extends Component {
 
   async componentDidMount() {
     await this.requestAPIOnLoad();
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes'));
+    if (!favorites) {
+      localStorage.setItem('favoriteRecipes', JSON.stringify([]));
+    }
   }
 
   requestAPIOnLoad = async () => {
