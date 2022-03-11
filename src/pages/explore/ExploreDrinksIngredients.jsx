@@ -12,9 +12,7 @@ export default class ExploreDrinksIngredients extends Component {
 
     this.state = {
       ingredients: [],
-      ingredientsCards: [],
     };
-    this.mapIngredientes = this.mapIngredientes.bind(this);
   }
 
   componentDidMount() {
@@ -23,31 +21,19 @@ export default class ExploreDrinksIngredients extends Component {
 
   getDrinkIngredients = async () => {
     const fetchIngredients = await exploreDrinkIngredients();
+    const filtred = fetchIngredients.map(({ strIngredient1 }) => strIngredient1);
     this.setState({
-      ingredients: fetchIngredients,
-    }, () => this.mapIngredientes());
-  }
-
-  mapIngredientes() {
-    const { ingredients } = this.state;
-    const ingredientsArray = [];
-    const MAX_NUMBER = 12;
-    const teste = ingredients.map(({ strIngredient1 }) => strIngredient1);
-    for (let i = 1; i <= MAX_NUMBER; i += 1) {
-      ingredientsArray.push(teste[i]);
-    }
-    this.setState({
-      ingredientsCards: ingredientsArray,
+      ingredients: filtred,
     });
   }
 
   render() {
     const { history } = this.props;
-    const { ingredientsCards } = this.state;
+    const { ingredients } = this.state;
     return (
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
-        {ingredientsCards.map((card, index) => (
+        {ingredients.map((card, index) => (
           <Link
             data-testid={ `${index}-ingredient-card` }
             to="/drinks"
@@ -56,7 +42,7 @@ export default class ExploreDrinksIngredients extends Component {
             <div>
               <img
                 data-testid={ `${index}-card-img` }
-                src={ `https://www.thecocktaildb.com/images/ingredients/${card}.png` }
+                src={ `https://www.thecocktaildb.com/images/ingredients/${card}-Small.png` }
                 alt={ card }
               />
               <h1 data-testid={ `${index}-card-name` }>{card}</h1>

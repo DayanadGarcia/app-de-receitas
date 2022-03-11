@@ -12,9 +12,7 @@ export default class ExploreFoodsIngredients extends Component {
 
     this.state = {
       ingredients: [],
-      ingredientsCards: [],
     };
-    this.mapIngredientes = this.mapIngredientes.bind(this);
   }
 
   componentDidMount() {
@@ -23,31 +21,19 @@ export default class ExploreFoodsIngredients extends Component {
 
   getFoodIngredients = async () => {
     const fetchIngredients = await exploreFoodIngredients();
+    const filtred = fetchIngredients.map(({ strIngredient }) => strIngredient);
     this.setState({
-      ingredients: fetchIngredients,
-    }, () => this.mapIngredientes());
-  }
-
-  mapIngredientes() {
-    const { ingredients } = this.state;
-    const ingredientsArray = [];
-    const MAX_NUMBER = 12;
-    const teste = ingredients.map(({ strIngredient }) => strIngredient);
-    for (let i = 1; i <= MAX_NUMBER; i += 1) {
-      ingredientsArray.push(teste[i]);
-    }
-    this.setState({
-      ingredientsCards: ingredientsArray,
+      ingredients: filtred,
     });
   }
 
   render() {
     const { history } = this.props;
-    const { ingredientsCards } = this.state;
+    const { ingredients } = this.state;
     return (
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
-        {ingredientsCards.map((card, index) => (
+        {ingredients.map((card, index) => (
           <Link data-testid={ `${index}-ingredient-card` } to="/foods/" key={ card }>
             <div>
               <img
