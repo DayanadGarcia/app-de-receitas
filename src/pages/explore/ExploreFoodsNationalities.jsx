@@ -33,10 +33,9 @@ export default class ExploreFoodsNationalities extends Component {
 
   filterCountriesApi = async (countrie) => {
     const filtred = await filterCountrie(countrie);
-    const { recipesOnLoad } = this.state;
     if (countrie === 'All') {
-      return this.setState({
-        recipes: recipesOnLoad,
+      this.setState({
+        recipesOnLoad: getFoods,
       });
     } this.setState({
       recipes: filtred,
@@ -76,7 +75,7 @@ export default class ExploreFoodsNationalities extends Component {
           <option data-testid="All-option" value="All">All</option>
           {filtredNationalities.map((countrie) => (
             <option
-              data-testid={ `data-testid="${countrie}-option` }
+              data-testid={ `${countrie}-option` }
               key={ countrie }
               value={ countrie }
             >
