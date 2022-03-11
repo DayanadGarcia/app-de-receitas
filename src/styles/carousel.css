@@ -1,0 +1,13 @@
+.recomendation {
+  overflow-x: hidden;
+}
+
+.carousel {
+  display: flex;
+  gap: 10px;
+  overflow-x: scroll;
+}
+
+.carousel-item {
+  min-width: 50%;
+}

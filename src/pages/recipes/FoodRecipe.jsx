@@ -4,6 +4,7 @@ import getYouTubeID from 'get-youtube-id';
 import { detailsFoodFetch } from '../../services/detailsAPI';
 import { cocktailsAPIOnLoad } from '../../services/APIsOnLoad';
 import '../../styles/btnStartRecipe.css';
+import '../../styles/carousel.css';
 import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
@@ -180,17 +181,26 @@ export default class FoodRecipe extends Component {
           height="315"
           src={ `https://www.youtube.com/embed/${videoID}` }
         />
-        { recomendation.map((recipe, index) => (
-          <div data-testid={ `${index}-recomendation-card` } key={ recipe.strDrink }>
-            <img
-              src={ recipe.strDrinkThumb }
-              alt={ recipe.strDrink }
-              data-testid={ `${index}-card-img` }
-            />
-            <p>{ recipe.strCategory }</p>
-            <p data-testid={ `${index}-recomendation-title` }>{ recipe.strDrink }</p>
-          </div>
-        )) }
+        <section className="recomendation">
+          <h4>Recomendações</h4>
+          <section className="carousel">
+            { recomendation.map((recipe, index) => (
+              <div
+                data-testid={ `${index}-recomendation-card` }
+                key={ recipe.strDrink }
+                className="carousel-item"
+              >
+                <img
+                  src={ recipe.strDrinkThumb }
+                  alt={ recipe.strDrink }
+                  data-testid={ `${index}-card-img` }
+                />
+                <p>{ recipe.strCategory }</p>
+                <p data-testid={ `${index}-recomendation-title` }>{ recipe.strDrink }</p>
+              </div>
+            )) }
+          </section>
+        </section>
         <p data-testid="instructions">{ recipes.strInstructions }</p>
         <footer>
           <button
@@ -198,7 +208,7 @@ export default class FoodRecipe extends Component {
             type="button"
             className="start-recipe"
             disabled={ disableStartButton }
-            onClick={ () => history.push(`/foods/${recipes.idMeal}/in-progress  `) }
+            onClick={ () => history.push(`/foods/${recipes.idMeal}/in-progress`) }
           >
             {buttonInnerText}
           </button>
