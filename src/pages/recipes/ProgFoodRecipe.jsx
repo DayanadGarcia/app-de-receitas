@@ -4,7 +4,7 @@ import { detailsFoodFetch } from '../../services/detailsAPI';
 import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
-// import '../../styles/progFoodRecipe.css';
+import '../../styles/progFoodRecipe.css';
 
 export default class ProgFoodRecipe extends Component {
   constructor() {
@@ -14,6 +14,7 @@ export default class ProgFoodRecipe extends Component {
       ingredients: [],
       copied: false,
       favorited: false,
+      checkboxChecked: [],
     };
   }
 
@@ -24,15 +25,13 @@ export default class ProgFoodRecipe extends Component {
   getIdAndApi = async () => {
     const { match: { params: { id } } } = this.props;
     const fetchFood = await detailsFoodFetch(id);
-    const ingredients = [];
+    let ingredients = [];
     const MAX_INGREDIENTS = 20;
 
     for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
-      console.log(`O texto do index ${i} é: `);
-      console.log(fetchFood[0][`strIngredient${i}`]);
       if (fetchFood[0][`strIngredient${i}`] === ''
       || fetchFood[0][`strIngredient${i}`] === null) {
-        console.log('Entrou no if');
+        ingredients = [...ingredients];
       } else {
         ingredients.push(
           [fetchFood[0][`strIngredient${i}`], fetchFood[0][`strMeasure${i}`]],
@@ -44,6 +43,28 @@ export default class ProgFoodRecipe extends Component {
       recipes: fetchFood[0],
       ingredients,
     });
+
+    this.getRecipesInProgress();
+  }
+
+  getRecipesInProgress = () => {
+    const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
+    const { recipes } = this.state;
+    const id = recipes.idMeal;
+
+    this.setState({
+      checkboxChecked: inProgress.meals[id],
+    });
+  }
+
+  isChecked = ({ target }) => {
+    const { checkboxChecked } = this.state;
+
+    const checkedResult = checkboxChecked.some((checkbox) => checkbox === target.name);
+
+    if (checkedResult) {
+      return target.isChecked;
+    }
   }
 
   shareButton = () => {
@@ -60,7 +81,6 @@ export default class ProgFoodRecipe extends Component {
   changeLocalStorage = () => {
     const { recipes, favorited } = this.state;
     const allFavorites = JSON.parse(localStorage.getItem('favoriteRecipes'));
-    console.log(allFavorites);
     const favorite = {
       id: recipes.idMeal,
       type: 'food',
@@ -76,7 +96,6 @@ export default class ProgFoodRecipe extends Component {
         if (allFavorites.length > 0) {
           allFavorites.push(favorite);
           localStorage.setItem('favoriteRecipes', JSON.stringify(allFavorites));
-          console.log(allFavorites);
         } else {
           localStorage.setItem('favoriteRecipes', JSON.stringify([favorite]));
         }
@@ -87,8 +106,55 @@ export default class ProgFoodRecipe extends Component {
     }
   }
 
-  classList() {
+  saveIngredientsTeste = (recipeId, ingredient, addFirstMeal, inProgress) => {
+    // caso ja exista alguma comida salva no localstorage
+    if (inProgress.meals !== null) {
+      // caso ja exista algum ingrediente daquela comida salvo no localstorage
+      if (inProgress.meals[recipeId] !== null) {
+        if (inProgress.meals[recipeId] !== undefined) {
+          let savedIngredients = inProgress.meals[recipeId];
+          const isSaved = savedIngredients.some((savedIngredient) => (
+            savedIngredient === ingredient));
+          // caso ja exista aquele ingrediente salvo no localstorage
+          if (isSaved) {
+            savedIngredients = [...savedIngredients];
+          // caso o ingrediente ainda não eseteja salvo no localstorage
+          } else {
+            savedIngredients = [...savedIngredients, ingredient];
+          }
 
+          const meals = { ...inProgress.meals, [recipeId]: savedIngredients };
+
+          inProgress = { ...inProgress, meals };
+
+          localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
+        } else {
+          const meals = { ...inProgress.meals, [recipeId]: [ingredient] };
+
+          inProgress = { ...inProgress, meals };
+
+          localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
+        }
+      }
+    // caso exista algo salvo no localstorage, mas que não seja alguma comida
+    } else {
+      localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstMeal));
+    }
+  }
+
+  saveIngredients = ({ target }) => {
+    const recipeId = target.id;
+    const ingredient = target.name;
+    const addFirstMeal = { meals: { [recipeId]: [ingredient] } };
+    const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
+
+    // caso ja exista algo salvo no localstorage em progresso
+    if (inProgress !== null) {
+      this.saveIngredientsTeste(recipeId, ingredient, addFirstMeal, inProgress);
+    // caso não exista nada salvo no localstorage ainda
+    } else {
+      localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstMeal));
+    }
   }
 
   render() {
@@ -131,12 +197,15 @@ export default class ProgFoodRecipe extends Component {
         <span data-testid="recipe-category">{ recipes.strCategory }</span>
         {ingredients.map((ingredient, index) => (
           <div key={ ingredient }>
-            <label htmlFor="ingredientsList" data-testid={ `${index}-ingredient-step` }>
+            <label htmlFor={ recipes.idMeal } data-testid={ `${index}-ingredient-step` }>
               <input
                 /* fonte: https://stackoverflow.com/questions/30975459/add-strikethrough-to-checked-checkbox */
                 type="checkbox"
-                name="ingredientsList"
+                id={ recipes.idMeal }
+                name={ `${ingredient[0]} - ${ingredient[1]}` }
                 className="ingredients"
+                onClick={ this.saveIngredients }
+                onChange={ this.isChecked }
               />
               <span>
                 {ingredient[0]}
