@@ -4,8 +4,8 @@
 
 .carousel {
   display: flex;
-  overflow-x: scroll;
   gap: 10px;
+  overflow-x: scroll;
 }
 
 .carousel-item {
