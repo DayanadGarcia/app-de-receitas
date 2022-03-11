@@ -16,6 +16,7 @@ import FoodRecipe from './pages/recipes/FoodRecipe';
 import DrinkRecipe from './pages/recipes/DrinkRecipe';
 import ProgFoodRecipe from './pages/recipes/ProgFoodRecipe';
 import ProgDrinkRecipe from './pages/recipes/ProgDrinkRecipe';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -44,6 +45,10 @@ function App() {
         <Route
           path="/explore/foods/nationalities"
           component={ ExploreFoodsNationalities }
+        />
+        <Route
+          path="/explore/drinks/nationalities"
+          component={ NotFound }
         />
         <Route path="/done-recipes" component={ DoneRecipes } />
         <Route path="/favorite-recipes" component={ FavoriteRecipes } />
