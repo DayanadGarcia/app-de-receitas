@@ -73,7 +73,7 @@ export default class ExploreFoodsNationalities extends Component {
           onChange={ (event) => this.filterCountriesApi(event.target.value) }
           data-testid="explore-by-nationality-dropdown"
         >
-          <option value="All">All</option>
+          <option data-testid="All-option" value="All">All</option>
           {filtredNationalities.map((countrie) => (
             <option
               data-testid={ `data-testid="${countrie}-option` }
