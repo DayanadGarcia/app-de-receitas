@@ -32,14 +32,17 @@ export default class ExploreFoodsNationalities extends Component {
   }
 
   filterCountriesApi = async (countrie) => {
-    const filtred = await filterCountrie(countrie);
+    const getFoods = await foodsAPIOnLoad();
     if (countrie === 'All') {
       this.setState({
-        recipesOnLoad: getFoods,
+        recipes: getFoods,
       });
-    } this.setState({
-      recipes: filtred,
-    });
+    } else {
+      const filtred = await filterCountrie(countrie);
+      this.setState({
+        recipes: filtred,
+      });
+    }
   }
 
   getNationalities = async () => {

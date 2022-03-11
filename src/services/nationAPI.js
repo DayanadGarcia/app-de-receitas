@@ -8,6 +8,8 @@ export async function nationApi() {
 export async function filterCountrie(countrie) {
   const response = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${countrie}`);
   const result = await response.json();
-  const meals = result.meals.slice(0, MAX_LENGTH);
-  return meals;
+  if (result) {
+    const meals = result.meals.slice(0, MAX_LENGTH);
+    return meals;
+  }
 }
