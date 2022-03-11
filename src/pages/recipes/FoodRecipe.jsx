@@ -8,6 +8,7 @@ import '../../styles/carousel.css';
 import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
+import { changeFavoritesLocalStorage } from '../../services/changeLocalStorageFood';
 
 export default class FoodRecipe extends Component {
   constructor() {
@@ -30,15 +31,26 @@ export default class FoodRecipe extends Component {
     // a função a baixo precisa fazer a página de done recipes pra passar no REQ 39
     // this.alreadyDone();
     // a função a baixo precisa fazer a página de recipes in progress pra passar no REQ 40
-    // recipeInProgress();
+    // this.recipeInProgress();
+  }
+
+  checkFavorited = () => {
+    const { recipes } = this.state;
+    const favorites = JSON.parse(localStorage.getItem('favoriteRecipes'));
+
+    if (favorites) {
+      this.setState({
+        favorited: favorites.find((favorite) => favorite.id === recipes.idMeal),
+      });
+    }
   }
 
   getIdAndApi = async () => {
     const { match: { params: { id } } } = this.props;
     const fetchFood = await detailsFoodFetch(id);
-    console.log(fetchFood[0]);
     const ingredients = [];
     const MAX_INGREDIENTS = 20;
+
     for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
       if (fetchFood[0][`strIngredient${i}`] !== '') {
         ingredients.push(
@@ -46,13 +58,15 @@ export default class FoodRecipe extends Component {
         );
       }
     }
-    console.log(ingredients);
+
     const videoID = getYouTubeID(fetchFood[0].strYoutube);
     this.setState({
       recipes: fetchFood[0],
       ingredients,
       videoID,
     });
+
+    this.checkFavorited();
   }
 
   getRecomendationDrinks = async () => {
@@ -74,9 +88,14 @@ export default class FoodRecipe extends Component {
   recipeInProgress = () => {
     const { recipes } = this.state;
     const doneRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
-    const check = doneRecipes.find((recipe) => recipe.id === recipes.idMeal);
-    if (check) {
-      this.setState({ disableStartButton: true, buttonInnerText: 'Continue Recipe' });
+
+    console.log(doneRecipes);
+
+    if (doneRecipes) {
+      const check = doneRecipes.map((recipe) => recipe.meals[id] === recipes.idMeal);
+      if (check) {
+        this.setState({ disableStartButton: true, buttonInnerText: 'Continue Recipe' });
+      }
     }
   }
 
@@ -88,38 +107,13 @@ export default class FoodRecipe extends Component {
 
   favoriteRecipe = () => {
     this.setState(({ favorited }) => ({ favorited: !favorited }),
-      this.changeLocalStorage());
+      this.setLocalStorage());
   }
 
-  changeLocalStorage = () => {
+  setLocalStorage = () => {
     const { recipes, favorited } = this.state;
-    const allFavorites = JSON.parse(localStorage.getItem('favoriteRecipes'));
-    console.log(allFavorites);
-    const favorite = {
-      id: recipes.idMeal,
-      type: 'food',
-      nationality: recipes.strArea,
-      category: recipes.strCategory,
-      alcoholicOrNot: '',
-      name: recipes.strMeal,
-      image: recipes.strMealThumb,
-    };
-
-    if (!favorited) {
-      if (allFavorites !== null) {
-        if (allFavorites.length > 0) {
-          allFavorites.push(favorite);
-          localStorage.setItem('favoriteRecipes', JSON.stringify(allFavorites));
-          console.log(allFavorites);
-        } else {
-          localStorage.setItem('favoriteRecipes', JSON.stringify([favorite]));
-        }
-      }
-    } else {
-      const newFavorites = allFavorites.filter((recipe) => recipe.id !== recipes.idMeal);
-      localStorage.setItem('favoriteRecipes', JSON.stringify(newFavorites));
-    }
-  }
+    changeFavoritesLocalStorage(recipes, favorited);
+  };
 
   render() {
     const {
@@ -150,15 +144,25 @@ export default class FoodRecipe extends Component {
         </button>
         { copied && <p>Link copied!</p>}
 
-        <button
-          data-testid="favorite-btn"
-          type="button"
-          onClick={ this.favoriteRecipe }
-        >
-          {favorited ? (
-            <img src={ blackHeartIcon } alt="favoritado" />)
-            : (<img src={ whiteHeartIcon } alt="não favoritado" />)}
-        </button>
+        {favorited ? (
+          <button
+            data-testid="favorite-btn"
+            type="button"
+            onClick={ this.favoriteRecipe }
+            src={ blackHeartIcon }
+          >
+            <img src={ blackHeartIcon } alt="favoritado" />
+          </button>
+        ) : (
+          <button
+            data-testid="favorite-btn"
+            type="button"
+            onClick={ this.favoriteRecipe }
+            src={ whiteHeartIcon }
+          >
+            <img src={ whiteHeartIcon } alt="não favoritado" />
+          </button>
+        )}
 
         <span data-testid="recipe-category">{ recipes.strCategory }</span>
         {ingredients.map((ingredient, index) => (
