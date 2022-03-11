@@ -33,7 +33,12 @@ export default class ExploreFoodsNationalities extends Component {
 
   filterCountriesApi = async (countrie) => {
     const filtred = await filterCountrie(countrie);
-    this.setState({
+    const { recipesOnLoad } = this.state;
+    if (countrie === 'All') {
+      return this.setState({
+        recipes: recipesOnLoad,
+      });
+    } this.setState({
       recipes: filtred,
     });
   }
@@ -55,7 +60,7 @@ export default class ExploreFoodsNationalities extends Component {
 
   render() {
     const { history } = this.props;
-    const { filtredNationalities, recipesOnLoad } = this.state;
+    const { filtredNationalities, recipesOnLoad, recipes } = this.state;
     return (
       <div>
         <Header
@@ -64,10 +69,14 @@ export default class ExploreFoodsNationalities extends Component {
           hideSearch={ false }
           drinkPage={ false }
         />
-        <select>
+        <select
+          onChange={ (event) => this.filterCountriesApi(event.target.value) }
+          data-testid="explore-by-nationality-dropdown"
+        >
+          <option value="All">All</option>
           {filtredNationalities.map((countrie) => (
             <option
-              onChange={ this.filterCountriesApi(countrie) }
+              data-testid={ `data-testid="${countrie}-option` }
               key={ countrie }
               value={ countrie }
             >
@@ -75,7 +84,9 @@ export default class ExploreFoodsNationalities extends Component {
             </option>
           ))}
         </select>
-        <FoodCard allRecipes={ recipesOnLoad } />
+        {recipes.length <= 0 ? (
+          <FoodCard allRecipes={ recipesOnLoad } />
+        ) : <FoodCard allRecipes={ recipes } /> }
         <Footer />
       </div>
     );
