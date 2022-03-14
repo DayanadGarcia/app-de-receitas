@@ -106,10 +106,10 @@ export default class FavoriteRecipes extends Component {
               <h2
                 data-testid={ `${index}-horizontal-top-text` }
               >
-                {`Categoria: ${favorite.category}`}
+                {`Category: ${favorite.category}`}
               </h2>
               {favorite.type === 'food' ? (
-                <h3>{`Nacionalidade: ${favorite.nationality}`}</h3>) : null}
+                <h3>{`Nationality: ${favorite.nationality}`}</h3>) : null}
               {favorite.alcoholicOrNot.length > 1 ? (
                 <h4>{favorite.alcoholicOrNot}</h4>) : null}
             </Link>
