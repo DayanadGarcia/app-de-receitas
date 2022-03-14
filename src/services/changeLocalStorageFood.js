@@ -37,17 +37,15 @@ export const changeIngredientsInProgressLocalStorage = (recipeId,
     if (inProgress.meals[recipeId] !== null) {
       if (inProgress.meals[recipeId] !== undefined) {
         let savedIngredients = inProgress.meals[recipeId];
-        const isSaved = savedIngredients.some(
-          (savedIngredient) => savedIngredient === ingredient,
-        );
+        const isSaved = savedIngredients.some((savedIngredient) => (
+          savedIngredient === ingredient));
         // caso ja exista aquele ingrediente salvo no localstorage
         if (isSaved) {
           savedIngredients = [...savedIngredients];
-          // caso o ingrediente ainda não eseteja salvo no localstorage
+        // caso o ingrediente ainda não eseteja salvo no localstorage
         } else {
           savedIngredients = [...savedIngredients, ingredient];
         }
-
         const meals = { ...inProgress.meals, [recipeId]: savedIngredients };
         inProgress = { ...inProgress, meals };
         localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
@@ -57,8 +55,30 @@ export const changeIngredientsInProgressLocalStorage = (recipeId,
         localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
       }
     }
-    // caso exista algo salvo no localstorage, mas que não seja alguma comida
+  // caso exista algo salvo no localstorage, mas que não seja alguma comida
   } else {
     localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstMeal));
+  }
+};
+
+export const changeDoneLocalStorage = (recipe) => {
+  const allRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+  const newDoneRecipe = {
+    id: recipe.idMeal,
+    type: 'food',
+    nationality: recipe.strArea,
+    category: recipe.strCategory,
+    alcoholicOrNot: '',
+    name: recipe.strMeal,
+    image: recipe.strMealThumb,
+    doneDate: 'data',
+    tags: recipe.strTags.split(', '),
+  };
+
+  if (allRecipes) {
+    allRecipes.push(newDoneRecipe);
+    localStorage.setItem('doneRecipes', JSON.stringify(allRecipes));
+  } else {
+    localStorage.setItem('doneRecipes', JSON.stringify([newDoneRecipe]));
   }
 };
