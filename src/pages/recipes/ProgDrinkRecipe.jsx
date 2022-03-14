@@ -5,7 +5,7 @@ import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
 import '../../styles/progRecipe.css';
-import { changeFavoritesLocalStorage,
+import { changeDoneLocalStorage, changeFavoritesLocalStorage,
   changeIngredientsInProgressLocalStorage } from '../../services/changeLocalStorageDrink';
 
 export default class ProgFoodRecipe extends Component {
@@ -121,7 +121,6 @@ export default class ProgFoodRecipe extends Component {
     const ingredient = target.name;
     const addFirstDrink = { drinks: { [recipeId]: [ingredient] } };
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
-
     this.disabledButton(false);
 
     // caso ja exista algo salvo no localstorage em progresso
@@ -138,13 +137,10 @@ export default class ProgFoodRecipe extends Component {
     const { ingredients, recipes } = this.state;
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     let result = true;
-    console.log(inProgress);
-    console.log(ingredients);
-
     if (inProgress) {
       if (onLoad) {
         result = inProgress.drinks[recipes.idDrink].length !== (ingredients.length);
-      } else {
+      } else if (inProgress.drinks[recipes.idDrink]) {
         result = inProgress.drinks[recipes.idDrink].length !== (ingredients.length - 1);
       }
     }
@@ -153,10 +149,15 @@ export default class ProgFoodRecipe extends Component {
     });
   }
 
+  finishRecipe = () => {
+    const { recipes } = this.state;
+    const { history } = this.props;
+    changeDoneLocalStorage(recipes);
+    history.push('/done-recipes');
+  }
+
   render() {
     const { recipes, ingredients, copied, favorited, disable } = this.state;
-    const { history } = this.props;
-
     return (
       <div>
         <img
@@ -165,7 +166,6 @@ export default class ProgFoodRecipe extends Component {
           alt={ recipes.strDrink }
         />
         <h1 data-testid="recipe-title">{recipes.strDrink}</h1>
-
         <button
           data-testid="share-btn"
           type="button"
@@ -232,7 +232,7 @@ export default class ProgFoodRecipe extends Component {
           data-testid="finish-recipe-btn"
           type="button"
           disabled={ disable }
-          onClick={ () => history.push('/done-recipes') }
+          onClick={ this.finishRecipe }
         >
           Finish Recipe
         </button>

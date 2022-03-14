@@ -5,7 +5,7 @@ import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
 import '../../styles/progRecipe.css';
-import { changeFavoritesLocalStorage,
+import { changeDoneLocalStorage, changeFavoritesLocalStorage,
   changeIngredientsInProgressLocalStorage } from '../../services/changeLocalStorageFood';
 
 export default class ProgFoodRecipe extends Component {
@@ -114,7 +114,6 @@ export default class ProgFoodRecipe extends Component {
 
   setLocalStorage = () => {
     const { recipes, favorited } = this.state;
-
     changeFavoritesLocalStorage(recipes, favorited);
   };
 
@@ -123,7 +122,6 @@ export default class ProgFoodRecipe extends Component {
     const ingredient = target.name;
     const addFirstMeal = { meals: { [recipeId]: [ingredient] } };
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
-
     this.disabledButton(false);
     // caso ja exista algo salvo no localstorage em progresso
     if (inProgress !== null) {
@@ -139,11 +137,10 @@ export default class ProgFoodRecipe extends Component {
     const { ingredients, recipes } = this.state;
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     let result = true;
-
     if (inProgress) {
       if (onLoad) {
         result = inProgress.meals[recipes.idMeal].length !== (ingredients.length);
-      } else {
+      } else if (inProgress.meals[recipes.idMeal]) {
         result = inProgress.meals[recipes.idMeal].length !== (ingredients.length - 1);
       }
     }
@@ -152,10 +149,15 @@ export default class ProgFoodRecipe extends Component {
     });
   }
 
+  finishRecipe = () => {
+    const { recipes } = this.state;
+    const { history } = this.props;
+    changeDoneLocalStorage(recipes);
+    history.push('/done-recipes');
+  }
+
   render() {
     const { recipes, ingredients, copied, favorited, disable } = this.state;
-    const { history } = this.props;
-
     return (
       <div>
         <img
@@ -164,7 +166,6 @@ export default class ProgFoodRecipe extends Component {
           alt={ recipes.strMeal }
         />
         <h1 data-testid="recipe-title">{recipes.strMeal}</h1>
-
         <button
           data-testid="share-btn"
           type="button"
@@ -173,7 +174,6 @@ export default class ProgFoodRecipe extends Component {
           <img src={ shareIcon } alt="share" />
         </button>
         {copied && <p>Link copied!</p>}
-
         {favorited ? (
           <button
             data-testid="favorite-btn"
@@ -193,7 +193,6 @@ export default class ProgFoodRecipe extends Component {
             <img src={ whiteHeartIcon } alt="não favoritado" />
           </button>
         )}
-
         <span data-testid="recipe-category">{recipes.strCategory}</span>
         {ingredients.map((ingredient, index) => (
           <div key={ ingredient }>
@@ -231,7 +230,7 @@ export default class ProgFoodRecipe extends Component {
           data-testid="finish-recipe-btn"
           type="button"
           disabled={ disable }
-          onClick={ () => history.push('/done-recipes') }
+          onClick={ this.finishRecipe }
         >
           Finish Recipe
         </button>

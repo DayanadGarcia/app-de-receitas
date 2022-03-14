@@ -45,17 +45,15 @@ export const changeIngredientsInProgressLocalStorage = (recipeId,
     if (inProgress.drinks[recipeId] !== null) {
       if (inProgress.drinks[recipeId] !== undefined) {
         let savedIngredients = inProgress.drinks[recipeId];
-        const isSaved = savedIngredients.some(
-          (savedIngredient) => savedIngredient === ingredient,
-        );
+        const isSaved = savedIngredients.some((savedIngredient) => (
+          savedIngredient === ingredient));
         // caso ja exista aquele ingrediente salvo no localstorage
         if (isSaved) {
           savedIngredients = [...savedIngredients];
-          // caso o ingrediente ainda não eseteja salvo no localstorage
+        // caso o ingrediente ainda não eseteja salvo no localstorage
         } else {
           savedIngredients = [...savedIngredients, ingredient];
         }
-
         const drinks = { ...inProgress.drinks, [recipeId]: savedIngredients };
         inProgress = { ...inProgress, drinks };
         localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
@@ -65,8 +63,38 @@ export const changeIngredientsInProgressLocalStorage = (recipeId,
         localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
       }
     }
-    // caso exista algo salvo no localstorage, mas que não seja alguma comida
+  // caso exista algo salvo no localstorage, mas que não seja alguma comida
   } else {
     localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstDrink));
+  }
+};
+
+export const changeDoneLocalStorage = (recipe) => {
+  const allRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
+  let alcoholic = '';
+
+  if (recipe.strAlcoholic === 'Alcoholic') {
+    alcoholic = 'Alcoholic';
+  } else {
+    alcoholic = 'Non alcoholic';
+  }
+
+  const newDoneRecipe = {
+    id: recipe.idDrink,
+    type: 'drink',
+    nationality: '',
+    category: recipe.strCategory,
+    alcoholicOrNot: alcoholic,
+    name: recipe.strDrink,
+    image: recipe.strDrinkThumb,
+    doneDate: 'data',
+    tags: [],
+  };
+
+  if (allRecipes) {
+    allRecipes.push(newDoneRecipe);
+    localStorage.setItem('doneRecipes', JSON.stringify(allRecipes));
+  } else {
+    localStorage.setItem('doneRecipes', JSON.stringify([newDoneRecipe]));
   }
 };
