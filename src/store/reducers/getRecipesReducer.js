@@ -3,6 +3,7 @@ import {
   RECIPE_FOODS_ON_LOAD,
   RECIPE_DRINKS_ON_LOAD,
   FILTERED_RECIPES,
+  INGREDIENTS_FILTER,
 } from '../actions';
 
 const INITIAL_STATE = {
@@ -10,6 +11,7 @@ const INITIAL_STATE = {
   filteredRecipes: [],
   searchFood: false,
   searchDrink: false,
+  ingredientsFilter: [],
 };
 
 export default function getRecipesReducer(state = INITIAL_STATE, action) {
@@ -33,6 +35,11 @@ export default function getRecipesReducer(state = INITIAL_STATE, action) {
     return {
       ...state,
       filteredRecipes: action.payload,
+    };
+  case INGREDIENTS_FILTER:
+    return {
+      ...state,
+      ingredientsFilter: action.payload,
     };
   default:
     return state;

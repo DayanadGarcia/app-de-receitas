@@ -30,13 +30,19 @@ class Foods extends Component {
   }
 
   requestAPIOnLoad = async () => {
-    const { saveFilteredRecipes } = this.props;
+    const { saveFilteredRecipes, filterByIngredient } = this.props;
     const allRecipes = await foodsAPIOnLoad();
     const categorys = await categoryFoodAPI();
-    this.setState({
-      recipesOnLoad: allRecipes,
-      categorys,
-    });
+    if (filterByIngredient.length > 0) {
+      this.setState({
+        recipesOnLoad: filterByIngredient,
+      });
+    } else {
+      this.setState({
+        recipesOnLoad: allRecipes,
+        categorys,
+      });
+    }
     saveFilteredRecipes(allRecipes);
   }
 
@@ -122,12 +128,14 @@ Foods.propTypes = {
   recipes: PropTypes.arrayOf,
   search: PropTypes.bool,
   filteredRecipes: PropTypes.arrayOf,
+  filterByIngredient: PropTypes.arrayOf,
 }.isRequired;
 
 const mapStateToProps = (state) => ({
   recipes: state.getRecipesReducer.recipes,
   search: state.getRecipesReducer.searchFood,
   filteredRecipes: state.getRecipesReducer.filteredRecipes,
+  filterByIngredient: state.getRecipesReducer.ingredientsFilter,
 });
 
 const mapDispatchToProps = (dispatch) => ({
