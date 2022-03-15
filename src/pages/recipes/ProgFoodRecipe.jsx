@@ -126,7 +126,7 @@ export default class ProgFoodRecipe extends Component {
     // caso ja exista algo salvo no localstorage em progresso
     if (inProgress !== null) {
       changeIngredientsInProgressLocalStorage(recipeId,
-        ingredient, addFirstMeal, inProgress);
+        ingredient, inProgress);
       // caso não exista nada salvo no localstorage ainda
     } else {
       localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstMeal));

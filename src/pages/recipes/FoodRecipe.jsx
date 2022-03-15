@@ -9,6 +9,7 @@ import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
 import { changeFavoritesLocalStorage } from '../../services/changeLocalStorageFood';
+import '../../styles/doneRecipes.css';
 
 export default class FoodRecipe extends Component {
   constructor() {
@@ -19,6 +20,7 @@ export default class FoodRecipe extends Component {
       videoID: '',
       recomendation: [],
       disableStartButton: false,
+      showStartButton: true,
       buttonInnerText: 'Iniciar Receita',
       copied: false,
       favorited: false,
@@ -28,10 +30,7 @@ export default class FoodRecipe extends Component {
   componentDidMount() {
     this.getIdAndApi();
     this.getRecomendationDrinks();
-    // a função a baixo precisa fazer a página de done recipes pra passar no REQ 39
-    // this.alreadyDone();
-    // a função a baixo precisa fazer a página de recipes in progress pra passar no REQ 40
-    // this.recipeInProgress();
+    this.alreadyDone();
   }
 
   checkFavorited = () => {
@@ -52,7 +51,11 @@ export default class FoodRecipe extends Component {
     const MAX_INGREDIENTS = 20;
 
     for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
-      if (fetchFood[0][`strIngredient${i}`] !== '') {
+      if (
+        fetchFood[0][`strIngredient${i}`] !== ''
+        && fetchFood[0][`strIngredient${i}`] !== null
+        && fetchFood[0][`strIngredient${i}`] !== undefined
+      ) {
         ingredients.push(
           [fetchFood[0][`strIngredient${i}`], fetchFood[0][`strMeasure${i}`]],
         );
@@ -67,6 +70,7 @@ export default class FoodRecipe extends Component {
     });
 
     this.checkFavorited();
+    this.recipeInProgress();
   }
 
   getRecomendationDrinks = async () => {
@@ -79,22 +83,24 @@ export default class FoodRecipe extends Component {
   alreadyDone = () => {
     const { recipes } = this.state;
     const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
-    const check = doneRecipes.find((recipe) => recipe.id === recipes.idMeal);
-    if (check) {
-      this.setState({ disableStartButton: true });
+    console.log(doneRecipes);
+    if (doneRecipes) {
+      const check = doneRecipes.map((recipe) => recipe.id === recipes.idMeal);
+      if (check) {
+        this.setState({ showStartButton: false });
+      }
     }
   }
 
   recipeInProgress = () => {
     const { recipes } = this.state;
     const doneRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
-
-    console.log(doneRecipes);
-
-    if (doneRecipes) {
-      const check = doneRecipes.map((recipe) => recipe.meals[id] === recipes.idMeal);
+    let ids = [];
+    if (doneRecipes && doneRecipes.meals) {
+      ids = Object.keys(doneRecipes.meals);
+      const check = ids.some((id) => id === recipes.idMeal);
       if (check) {
-        this.setState({ disableStartButton: true, buttonInnerText: 'Continue Recipe' });
+        this.setState({ buttonInnerText: 'Continue Recipe' });
       }
     }
   }
@@ -124,6 +130,7 @@ export default class FoodRecipe extends Component {
       buttonInnerText,
       copied,
       favorited,
+      showStartButton,
     } = this.state;
     const { history } = this.props;
     return (
@@ -198,6 +205,7 @@ export default class FoodRecipe extends Component {
                   src={ recipe.strDrinkThumb }
                   alt={ recipe.strDrink }
                   data-testid={ `${index}-card-img` }
+                  className="image"
                 />
                 <p>{ recipe.strCategory }</p>
                 <p data-testid={ `${index}-recomendation-title` }>{ recipe.strDrink }</p>
@@ -207,15 +215,16 @@ export default class FoodRecipe extends Component {
         </section>
         <p data-testid="instructions">{ recipes.strInstructions }</p>
         <footer>
-          <button
-            data-testid="start-recipe-btn"
-            type="button"
-            className="start-recipe"
-            disabled={ disableStartButton }
-            onClick={ () => history.push(`/foods/${recipes.idMeal}/in-progress`) }
-          >
-            {buttonInnerText}
-          </button>
+          {showStartButton && (
+            <button
+              data-testid="start-recipe-btn"
+              type="button"
+              className="start-recipe"
+              disabled={ disableStartButton }
+              onClick={ () => history.push(`/foods/${recipes.idMeal}/in-progress`) }
+            >
+              {buttonInnerText}
+            </button>)}
         </footer>
       </div>
     );
