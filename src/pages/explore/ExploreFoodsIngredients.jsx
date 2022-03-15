@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { exploreFoodIngredients }
 from '../../services/exploreIngredientsAPI';
+import { ingredientsFiltered } from '../../store/actions';
+import { ingredientFoodAPI } from '../../services/IngredientAPI';
 
-export default class ExploreFoodsIngredients extends Component {
+class ExploreFoodsIngredients extends Component {
   constructor(props) {
     super(props);
 
@@ -27,6 +29,13 @@ export default class ExploreFoodsIngredients extends Component {
     });
   }
 
+  handleClickFilter = async (ingredient) => { /// func para mandar p store
+    const { filterByIngredient, history } = this.props;
+    const ingredientRecipes = await ingredientFoodAPI(ingredient);
+    filterByIngredient(ingredientRecipes);
+    history.push('/foods');
+  }
+
   render() {
     const { history } = this.props;
     const { ingredients } = this.state;
@@ -34,7 +43,12 @@ export default class ExploreFoodsIngredients extends Component {
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
         {ingredients.map((card, index) => (
-          <Link data-testid={ `${index}-ingredient-card` } to="/foods/" key={ card }>
+          <button
+            type="button"
+            data-testid={ `${index}-ingredient-card` }
+            onClick={ () => this.handleClickFilter(card) }
+            key={ card }
+          >
             <div>
               <img
                 data-testid={ `${index}-card-img` }
@@ -43,7 +57,7 @@ export default class ExploreFoodsIngredients extends Component {
               />
               <h1 data-testid={ `${index}-card-name` }>{card}</h1>
             </div>
-          </Link>
+          </button>
         ))}
         <Footer />
       </div>
@@ -55,4 +69,11 @@ ExploreFoodsIngredients.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
   }).isRequired,
+  filterByIngredient: PropTypes.func.isRequired,
 };
+
+const mapDispatchToProps = (dispatch) => ({ // mandar p store
+  filterByIngredient: (state) => dispatch(ingredientsFiltered(state)),
+});
+
+export default connect(null, mapDispatchToProps)(ExploreFoodsIngredients);

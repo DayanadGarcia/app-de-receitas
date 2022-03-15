@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { exploreDrinkIngredients }
 from '../../services/exploreIngredientsAPI';
+import { ingredientsFiltered } from '../../store/actions';
+import { ingredientCocktailAPI } from '../../services/IngredientAPI';
 
-export default class ExploreDrinksIngredients extends Component {
+class ExploreDrinksIngredients extends Component {
   constructor(props) {
     super(props);
 
@@ -27,6 +29,13 @@ export default class ExploreDrinksIngredients extends Component {
     });
   }
 
+  handleClickFilter = async (ingredient) => { /// func para mandar p store
+    const { filterByIngredient, history } = this.props;
+    const ingredientRecipes = await ingredientCocktailAPI(ingredient);
+    filterByIngredient(ingredientRecipes);
+    history.push('/drinks');
+  }
+
   render() {
     const { history } = this.props;
     const { ingredients } = this.state;
@@ -34,9 +43,10 @@ export default class ExploreDrinksIngredients extends Component {
       <div>
         <Header history={ history } name="Explore Ingredients" hideSearch />
         {ingredients.map((card, index) => (
-          <Link
+          <button
+            type="button"
+            onClick={ () => this.handleClickFilter(card) }
             data-testid={ `${index}-ingredient-card` }
-            to="/drinks"
             key={ card }
           >
             <div>
@@ -47,7 +57,7 @@ export default class ExploreDrinksIngredients extends Component {
               />
               <h1 data-testid={ `${index}-card-name` }>{card}</h1>
             </div>
-          </Link>
+          </button>
         ))}
         <Footer />
       </div>
@@ -59,4 +69,11 @@ ExploreDrinksIngredients.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
   }).isRequired,
+  filterByIngredient: PropTypes.func.isRequired,
 };
+
+const mapDispatchToProps = (dispatch) => ({ // mandar p store
+  filterByIngredient: (state) => dispatch(ingredientsFiltered(state)),
+});
+
+export default connect(null, mapDispatchToProps)(ExploreDrinksIngredients);

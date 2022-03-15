@@ -26,13 +26,19 @@ class Drinks extends Component {
   }
 
   requestAPIOnLoad = async () => {
-    const { saveFilteredRecipes } = this.props;
+    const { saveFilteredRecipes, filterByIngredient } = this.props;
     const allRecipes = await cocktailsAPIOnLoad();
     const categorys = await categoryCocktailAPI();
-    this.setState({
-      recipesOnLoad: allRecipes,
-      categorys,
-    });
+    if (filterByIngredient.length > 0) {
+      this.setState({
+        recipesOnLoad: filterByIngredient,
+      });
+    } else {
+      this.setState({
+        recipesOnLoad: allRecipes,
+        categorys,
+      });
+    }
     saveFilteredRecipes(allRecipes);
   }
 
@@ -117,12 +123,14 @@ Drinks.propTypes = {
   }),
   recipes: PropTypes.arrayOf,
   search: PropTypes.bool,
+  filterByIngredient: PropTypes.arrayOf,
 }.isRequired;
 
 const mapStateToProps = (state) => ({
   recipes: state.getRecipesReducer.recipes,
   search: state.getRecipesReducer.searchDrink,
   filteredRecipes: state.getRecipesReducer.filteredRecipes,
+  filterByIngredient: state.getRecipesReducer.ingredientsFilter,
 });
 
 const mapDispatchToProps = (dispatch) => ({
