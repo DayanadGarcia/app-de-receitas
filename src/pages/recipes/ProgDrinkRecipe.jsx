@@ -50,6 +50,7 @@ export default class ProgFoodRecipe extends Component {
       if (
         fetchDrink[0][`strIngredient${i}`] === null
         || fetchDrink[0][`strIngredient${i}`] === ''
+        || fetchDrink[0][`strIngredient${i}`] === undefined
       ) {
         ingredients = [...ingredients];
       } else {
