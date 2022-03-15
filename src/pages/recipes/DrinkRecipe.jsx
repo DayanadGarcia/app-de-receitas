@@ -9,6 +9,7 @@ import shareIcon from '../../images/shareIcon.svg';
 import whiteHeartIcon from '../../images/whiteHeartIcon.svg';
 import blackHeartIcon from '../../images/blackHeartIcon.svg';
 import { changeFavoritesLocalStorage } from '../../services/changeLocalStorageDrink';
+import '../../styles/doneRecipes.css';
 
 export default class DrinkRecipe extends Component {
   constructor() {
@@ -19,6 +20,7 @@ export default class DrinkRecipe extends Component {
       // videoID: '',
       recomendation: [],
       disableStartButton: false,
+      showStartButton: true,
       buttonInnerText: 'Iniciar Receita',
       copied: false,
       favorited: false,
@@ -28,10 +30,7 @@ export default class DrinkRecipe extends Component {
   componentDidMount() {
     this.getIdAndApi();
     this.getRecomendationFoods();
-    // a função a baixo precisa fazer a página de done recipes pra passar no REQ 39
-    // this.alreadyDone();
-    // a função a baixo precisa fazer a página de recipes in progress pra passar no REQ 40
-    // recipeInProgress();
+    this.alreadyDone();
   }
 
   checkFavorited = () => {
@@ -52,21 +51,23 @@ export default class DrinkRecipe extends Component {
     const MAX_INGREDIENTS = 20;
 
     for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
-      if (fetchDrink[0][`strIngredient${i}`] !== '') {
+      if (
+        fetchDrink[0][`strIngredient${i}`] !== ''
+        && fetchDrink[0][`strIngredient${i}`] !== null
+        && fetchDrink[0][`strIngredient${i}`] !== undefined
+      ) {
         ingredients.push(
           [fetchDrink[0][`strIngredient${i}`], fetchDrink[0][`strMeasure${i}`]],
         );
       }
     }
-
-    // const videoID = getYouTubeID(fetchDrink[0].strYoutube);
     this.setState({
       recipes: fetchDrink[0],
       ingredients,
-      // videoID,
     });
 
     this.checkFavorited();
+    this.recipeInProgress();
   }
 
   getRecomendationFoods = async () => {
@@ -79,18 +80,24 @@ export default class DrinkRecipe extends Component {
   alreadyDone = () => {
     const { recipes } = this.state;
     const doneRecipes = JSON.parse(localStorage.getItem('doneRecipes'));
-    const check = doneRecipes.find((recipe) => recipe.id === recipes.idDrink);
-    if (check) {
-      this.setState({ disableStartButton: true });
+    if (doneRecipes) {
+      const check = doneRecipes.map((recipe) => recipe.id === recipes.idDrink);
+      if (check) {
+        this.setState({ showStartButton: false });
+      }
     }
   }
 
   recipeInProgress = () => {
     const { recipes } = this.state;
     const doneRecipes = JSON.parse(localStorage.getItem('inProgressRecipes'));
-    const check = doneRecipes.find((recipe) => recipe.id === recipes.idDrink);
-    if (check) {
-      this.setState({ disableStartButton: true, buttonInnerText: 'Continue Recipe' });
+    let ids = [];
+    if (doneRecipes && doneRecipes.cocktails) {
+      ids = Object.keys(doneRecipes.cocktails);
+      const check = ids.some((id) => id === recipes.idDrink);
+      if (check) {
+        this.setState({ buttonInnerText: 'Continue Recipe' });
+      }
     }
   }
 
@@ -119,6 +126,7 @@ export default class DrinkRecipe extends Component {
       buttonInnerText,
       copied,
       favorited,
+      showStartButton,
     } = this.state;
     const { history } = this.props;
     return (
@@ -163,7 +171,7 @@ export default class DrinkRecipe extends Component {
           ? <span data-testid="recipe-category">Alcoholic</span>
           : <span data-testid="recipe-category">Non alcoholic</span>}
         {ingredients.map((ingredient, index) => (
-          <div key={ ingredient }>
+          <div key={ index }>
             <p
               data-testid={ `${index}-ingredient-name-and-measure` }
             >
@@ -188,6 +196,7 @@ export default class DrinkRecipe extends Component {
                   src={ recipe.strMealThumb }
                   alt={ recipe.strMeal }
                   data-testid={ `${index}-card-img` }
+                  className="image"
                 />
                 <p>{ recipe.strCategory }</p>
                 <p data-testid={ `${index}-recomendation-title` }>{ recipe.strMeal }</p>
@@ -197,15 +206,16 @@ export default class DrinkRecipe extends Component {
         </section>
         <p data-testid="instructions">{ recipes.strInstructions }</p>
         <footer>
-          <button
-            data-testid="start-recipe-btn"
-            type="button"
-            className="start-recipe"
-            disabled={ disableStartButton }
-            onClick={ () => history.push(`/drinks/${recipes.idDrink}/in-progress`) }
-          >
-            {buttonInnerText}
-          </button>
+          {showStartButton && (
+            <button
+              data-testid="start-recipe-btn"
+              type="button"
+              className="start-recipe"
+              disabled={ disableStartButton }
+              onClick={ () => history.push(`/drinks/${recipes.idDrink}/in-progress`) }
+            >
+              {buttonInnerText}
+            </button>)}
         </footer>
       </div>
     );

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Header from './components/Header';
 import blackHeartIcon from '../images/blackHeartIcon.svg';
 import shareIcon from '../images/shareIcon.svg';
+import '../styles/doneRecipes.css';
 
 export default class FavoriteRecipes extends Component {
   constructor(props) {
@@ -94,7 +95,7 @@ export default class FavoriteRecipes extends Component {
         >
           Drink
         </button>
-        {favorites.map((favorite, index) => (
+        {favorites && favorites.map((favorite, index) => (
           <div key={ favorite.id }>
             <Link to={ `/${favorite.type}s/${favorite.id}` }>
               <h1 data-testid={ `${index}-horizontal-name` }>{favorite.name}</h1>
@@ -102,22 +103,23 @@ export default class FavoriteRecipes extends Component {
                 data-testid={ `${index}-horizontal-image` }
                 src={ favorite.image }
                 alt={ favorite.name }
+                className="image"
               />
-              <h2
-                data-testid={ `${index}-horizontal-top-text` }
-              >
-                {`Category: ${favorite.category}`}
-              </h2>
               {favorite.type === 'food' ? (
-                <h3>{`Nationality: ${favorite.nationality}`}</h3>) : null}
+                <h3 data-testid={ `${index}-horizontal-top-text` }>
+                  {`${favorite.nationality} - ${favorite.category}`}
+                </h3>) : null}
               {favorite.alcoholicOrNot.length > 1 ? (
-                <h4>{favorite.alcoholicOrNot}</h4>) : null}
+                <h4 data-testid={ `${index}-horizontal-top-text` }>
+                  {`${favorite.category} - ${favorite.alcoholicOrNot}`}
+                </h4>) : null}
             </Link>
             <button
               data-testid={ `${index}-horizontal-favorite-btn` }
               onClick={ () => this.removeFav(favorite.id) }
               type="button"
               value={ favorite.name }
+              src={ blackHeartIcon }
             >
               <img src={ blackHeartIcon } alt="favoritado" />
             </button>
@@ -128,6 +130,7 @@ export default class FavoriteRecipes extends Component {
               }
               type="button"
               value={ favorite.id }
+              src={ shareIcon }
             >
               <img src={ shareIcon } alt="shareIcon" />
             </button>

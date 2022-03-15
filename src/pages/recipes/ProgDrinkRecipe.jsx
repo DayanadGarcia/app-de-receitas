@@ -48,8 +48,7 @@ export default class ProgFoodRecipe extends Component {
 
     for (let i = 1; i <= MAX_INGREDIENTS; i += 1) {
       if (
-        fetchDrink[0][`strIngredient${i}`] === undefined
-        || fetchDrink[0][`strIngredient${i}`] === null
+        fetchDrink[0][`strIngredient${i}`] === null
         || fetchDrink[0][`strIngredient${i}`] === ''
       ) {
         ingredients = [...ingredients];
@@ -65,6 +64,7 @@ export default class ProgFoodRecipe extends Component {
       recipes: fetchDrink[0],
       ingredients,
     });
+
     this.getRecipesInProgress();
     this.checkFavorited();
   };
@@ -73,9 +73,8 @@ export default class ProgFoodRecipe extends Component {
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     const { recipes } = this.state;
     const id = recipes.idDrink;
-
-    if (inProgress !== null) {
-      this.isChecked(inProgress.drinks[id]);
+    if (inProgress && inProgress.cocktails) {
+      this.isChecked(inProgress.cocktails[id]);
     }
   };
 
@@ -90,6 +89,7 @@ export default class ProgFoodRecipe extends Component {
         }
         return [...ingredient, false];
       });
+
       this.setState({
         ingredients: ingredientsLocalstorage,
       }, this.disabledButton(true));
@@ -119,14 +119,13 @@ export default class ProgFoodRecipe extends Component {
   saveIngredients = ({ target }) => {
     const recipeId = target.id;
     const ingredient = target.name;
-    const addFirstDrink = { drinks: { [recipeId]: [ingredient] } };
+    const addFirstDrink = { cocktails: { [recipeId]: [ingredient] } };
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     this.disabledButton(false);
-
     // caso ja exista algo salvo no localstorage em progresso
     if (inProgress !== null) {
       changeIngredientsInProgressLocalStorage(recipeId,
-        ingredient, addFirstDrink, inProgress);
+        ingredient, inProgress);
       // caso não exista nada salvo no localstorage ainda
     } else {
       localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstDrink));
@@ -137,11 +136,12 @@ export default class ProgFoodRecipe extends Component {
     const { ingredients, recipes } = this.state;
     const inProgress = JSON.parse(localStorage.getItem('inProgressRecipes'));
     let result = true;
-    if (inProgress) {
+    if (inProgress && inProgress.cocktails) {
       if (onLoad) {
-        result = inProgress.drinks[recipes.idDrink].length !== (ingredients.length);
-      } else if (inProgress.drinks[recipes.idDrink]) {
-        result = inProgress.drinks[recipes.idDrink].length !== (ingredients.length - 1);
+        result = inProgress.cocktails[recipes.idDrink].length !== (ingredients.length);
+      } else if (inProgress.cocktails[recipes.idDrink]) {
+        result = inProgress.cocktails[recipes.idDrink].length
+        !== (ingredients.length - 1);
       }
     }
     this.setState({
@@ -174,7 +174,6 @@ export default class ProgFoodRecipe extends Component {
           <img src={ shareIcon } alt="share" />
         </button>
         {copied && <p>Link copied!</p>}
-
         {favorited ? (
           <button
             data-testid="favorite-btn"
@@ -194,7 +193,6 @@ export default class ProgFoodRecipe extends Component {
             <img src={ whiteHeartIcon } alt="não favoritado" />
           </button>
         )}
-
         <span data-testid="recipe-category">{recipes.strCategory}</span>
         {ingredients.map((ingredient, index) => (
           <div key={ ingredient }>

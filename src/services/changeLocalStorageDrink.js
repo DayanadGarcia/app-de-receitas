@@ -38,34 +38,32 @@ export const changeFavoritesLocalStorage = (recipes, favorited) => {
 };
 
 export const changeIngredientsInProgressLocalStorage = (recipeId,
-  ingredient, addFirstDrink, inProgress) => {
-  // caso ja exista alguma comida salva no localstorage
-  if (inProgress.drinks !== null) {
-    // caso ja exista algum ingrediente daquela comida salvo no localstorage
-    if (inProgress.drinks[recipeId] !== null) {
-      if (inProgress.drinks[recipeId] !== undefined) {
-        let savedIngredients = inProgress.drinks[recipeId];
-        const isSaved = savedIngredients.some((savedIngredient) => (
-          savedIngredient === ingredient));
+  ingredient, inProgress) => {
+  // caso ja exista alguma bebida salva no localstorage
+  if (inProgress.cocktails) {
+    if (inProgress.cocktails[recipeId]) {
+      let savedIngredients = inProgress.cocktails[recipeId];
+      const isSaved = savedIngredients.some((savedIngredient) => (
+        savedIngredient === ingredient));
         // caso ja exista aquele ingrediente salvo no localstorage
-        if (isSaved) {
-          savedIngredients = [...savedIngredients];
+      if (isSaved) {
+        savedIngredients = [...savedIngredients];
         // caso o ingrediente ainda não eseteja salvo no localstorage
-        } else {
-          savedIngredients = [...savedIngredients, ingredient];
-        }
-        const drinks = { ...inProgress.drinks, [recipeId]: savedIngredients };
-        inProgress = { ...inProgress, drinks };
-        localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
       } else {
-        const drinks = { ...inProgress.drinks, [recipeId]: [ingredient] };
-        inProgress = { ...inProgress, drinks };
-        localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
+        savedIngredients = [...savedIngredients, ingredient];
       }
+      const cocktails = { ...inProgress.cocktails, [recipeId]: savedIngredients };
+      inProgress = { ...inProgress, cocktails };
+      localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
+    } else {
+      const cocktails = { ...inProgress.cocktails, [recipeId]: [ingredient] };
+      inProgress = { ...inProgress, cocktails };
+      localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
     }
-  // caso exista algo salvo no localstorage, mas que não seja alguma comida
+  // caso exista algo salvo no localstorage, mas que não seja alguma bebida
   } else {
-    localStorage.setItem('inProgressRecipes', JSON.stringify(addFirstDrink));
+    inProgress = { ...inProgress, cocktails: { [recipeId]: [ingredient] } };
+    localStorage.setItem('inProgressRecipes', JSON.stringify(inProgress));
   }
 };
 
