@@ -60,6 +60,7 @@
     ]
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.3",
     "clipboardy": "^2.1.0",
     "cypress": "^9.3.1",
     "cypress-multi-reporters": "^1.4.0",
@@ -71,6 +72,7 @@
     "mochawesome": "^6.1.1",
     "mochawesome-merge": "^4.1.0",
     "mochawesome-report-generator": "^5.1.0",
+    "postcss": "^8.4.11",
     "stylelint": "^13.8.0",
     "stylelint-order": "^4.1.0"
   },
